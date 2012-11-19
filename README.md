@@ -37,7 +37,7 @@ T:done()
 Output:
 
 ```
-Multiplication ...x.FAILED
+Multiplication ...x. FAILED
 
 [FAIL] my.test.lua line 8
   expected: 13
