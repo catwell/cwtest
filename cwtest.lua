@@ -36,17 +36,16 @@ local done = function(self)
 end
 
 local eq = function(self,x,y)
-  printf(".")
-  if not ((x == y) or tablex.deepcompare(x,y)) then
-    fail_eq(self,x,y)
-  end
+  if (x == y) or tablex.deepcompare(x,y) then
+    printf(".")
+  else fail_eq(self,x,y) end
 end
 
 local seq = function(self,x,y) -- list-sets
-  printf(".")
-  if not tablex.compare_no_order(x,y) then
-    fail_eq(self,x,y)
-  end
+  if tablex.compare_no_order(x,y) then
+    printf(".")
+  else fail_eq(self,x,y) end
+end
 end
 
 local methods = {
