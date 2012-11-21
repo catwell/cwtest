@@ -38,14 +38,14 @@ end
 local eq = function(self,x,y)
   printf(".")
   if not ((x == y) or tablex.deepcompare(x,y)) then
-    self.fail_eq(self,x,y)
+    fail_eq(self,x,y)
   end
 end
 
 local seq = function(self,x,y) -- list-sets
   printf(".")
   if not tablex.compare_no_order(x,y) then
-    self.fail_eq(self,x,y)
+    fail_eq(self,x,y)
   end
 end
 
