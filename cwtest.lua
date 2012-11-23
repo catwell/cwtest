@@ -14,6 +14,7 @@ local pass_assertion = function(self)
     info.short_src,
     info.currentline
   )
+  return true
 end
 
 local fail_assertion = function(self)
@@ -24,6 +25,7 @@ local fail_assertion = function(self)
     info.short_src,
     info.currentline
   )
+  return false
 end
 
 local pass_eq = function(self,x,y)
@@ -36,6 +38,7 @@ local pass_eq = function(self,x,y)
     pretty.write(y,""),
     pretty.write(x,"")
   )
+  return true
 end
 
 local fail_eq = function(self,x,y)
@@ -48,6 +51,7 @@ local fail_eq = function(self,x,y)
     pretty.write(y,""),
     pretty.write(x,"")
   )
+  return false
 end
 
 local start = function(self,s)
@@ -73,20 +77,20 @@ end
 
 local eq = function(self,x,y)
   local ok = (x == y) or tablex.deepcompare(x,y)
-  ;(ok and pass_eq or fail_eq)(self,x,y)
+  return (ok and pass_eq or fail_eq)(self,x,y)
 end
 
 local seq = function(self,x,y) -- list-sets
   local ok = tablex.compare_no_order(x,y)
-  ;(ok and pass_eq or fail_eq)(self,x,y)
+  return (ok and pass_eq or fail_eq)(self,x,y)
 end
 
 local is_true = function(self,x)
-  (x and pass_assertion or fail_assertion)(self)
+  return (x and pass_assertion or fail_assertion)(self)
 end
 
 local is_false = function(self,x)
-  (x and fail_assertion or pass_assertion)(self)
+  return (x and fail_assertion or pass_assertion)(self)
 end
 
 local methods = {
