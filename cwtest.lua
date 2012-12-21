@@ -94,13 +94,17 @@ local is_false = function(self,x)
 end
 
 local methods = {
-  fail_eq = fail_eq,
   start = start,
   done = done,
   eq = eq,
   seq = seq,
   yes = is_true,
   no = is_false,
+  -- below: only to build custom tests
+  pass_eq = pass_eq,
+  fail_eq = fail_eq,
+  pass_assertion = pass_assertion,
+  fail_assertion = fail_assertion,
 }
 
 local new = function(verbose)
