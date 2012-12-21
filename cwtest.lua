@@ -6,6 +6,32 @@ local printf = function(p,...)
   io.stdout:write(string.format(p,...)); io.stdout:flush()
 end
 
+local pass_tpl = function(self,tpl,...)
+  assert(type(tpl) == "string")
+  printf(".")
+  local info = debug.getinfo(3)
+  self.successes[#self.successes+1] = string.format(
+    "\n[OK] %s line %d%s\n",
+    info.short_src,
+    info.currentline,
+    (select('#',...) == 0) and tpl or string.format(tpl,...)
+  )
+  return true
+end
+
+local fail_tpl = function(self,tpl,...)
+  assert(type(tpl) == "string")
+  printf("x")
+  local info = debug.getinfo(3)
+  self.failures[#self.failures+1] = string.format(
+    "\n[KO] %s line %d%s\n",
+    info.short_src,
+    info.currentline,
+    (select('#',...) == 0) and tpl or string.format(tpl,...)
+  )
+  return false
+end
+
 local pass_assertion = function(self)
   printf(".")
   local info = debug.getinfo(3)
@@ -109,6 +135,8 @@ local methods = {
   fail_eq = fail_eq,
   pass_assertion = pass_assertion,
   fail_assertion = fail_assertion,
+  pass_tpl = pass_tpl,
+  fail_tpl = fail_tpl,
 }
 
 local new = function(verbose)
