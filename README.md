@@ -50,8 +50,11 @@ Squares .......... OK
 
 - `eq` called on tables uses deep comparison.
 - `seq` can be used to compare two lists without considering order.
-- You can easily define your own comparisons by adding methods to `T`
-and calling `fail_eq` to report errors.
+
+You can define your own comparisons by adding methods to `T` and calling
+`pass_` and `fail_` methods.
+You can find an example of this
+[in fakeredis](https://github.com/catwell/cw-lua/blob/0503a0cbda94ac006485eb16daf55ceb030408da/fakeredis/fakeredis.test.lua#L7).
 
 ## Copyright
 
