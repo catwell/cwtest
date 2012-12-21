@@ -77,20 +77,24 @@ end
 
 local eq = function(self,x,y)
   local ok = (x == y) or tablex.deepcompare(x,y)
-  return (ok and pass_eq or fail_eq)(self,x,y)
+  local r = (ok and pass_eq or fail_eq)(self,x,y)
+  return r
 end
 
 local seq = function(self,x,y) -- list-sets
   local ok = tablex.compare_no_order(x,y)
-  return (ok and pass_eq or fail_eq)(self,x,y)
+  local r = (ok and pass_eq or fail_eq)(self,x,y)
+  return r
 end
 
 local is_true = function(self,x)
-  return (x and pass_assertion or fail_assertion)(self)
+  local r = (x and pass_assertion or fail_assertion)(self)
+  return r
 end
 
 local is_false = function(self,x)
-  return (x and fail_assertion or pass_assertion)(self)
+  local r = (x and fail_assertion or pass_assertion)(self)
+  return r
 end
 
 local methods = {
