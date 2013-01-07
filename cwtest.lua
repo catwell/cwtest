@@ -108,7 +108,7 @@ local eq = function(self,x,y)
 end
 
 local seq = function(self,x,y) -- list-sets
-  local ok = tablex.compare_no_order(x,y)
+  local ok = tablex.compare_no_order(x,y,tablex.deepcompare)
   local r = (ok and pass_eq or fail_eq)(self,x,y)
   return r
 end
