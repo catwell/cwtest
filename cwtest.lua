@@ -6,6 +6,32 @@ local printf = function(p,...)
   io.stdout:write(string.format(p,...)); io.stdout:flush()
 end
 
+local pass_tpl = function(self,tpl,...)
+  assert(type(tpl) == "string")
+  printf(".")
+  local info = debug.getinfo(3)
+  self.successes[#self.successes+1] = string.format(
+    "\n[OK] %s line %d%s\n",
+    info.short_src,
+    info.currentline,
+    (select('#',...) == 0) and tpl or string.format(tpl,...)
+  )
+  return true
+end
+
+local fail_tpl = function(self,tpl,...)
+  assert(type(tpl) == "string")
+  printf("x")
+  local info = debug.getinfo(3)
+  self.failures[#self.failures+1] = string.format(
+    "\n[KO] %s line %d%s\n",
+    info.short_src,
+    info.currentline,
+    (select('#',...) == 0) and tpl or string.format(tpl,...)
+  )
+  return false
+end
+
 local pass_assertion = function(self)
   printf(".")
   local info = debug.getinfo(3)
@@ -77,30 +103,40 @@ end
 
 local eq = function(self,x,y)
   local ok = (x == y) or tablex.deepcompare(x,y)
-  return (ok and pass_eq or fail_eq)(self,x,y)
+  local r = (ok and pass_eq or fail_eq)(self,x,y)
+  return r
 end
 
 local seq = function(self,x,y) -- list-sets
-  local ok = tablex.compare_no_order(x,y)
-  return (ok and pass_eq or fail_eq)(self,x,y)
+  local ok = tablex.compare_no_order(x,y,tablex.deepcompare)
+  local r = (ok and pass_eq or fail_eq)(self,x,y)
+  return r
 end
 
 local is_true = function(self,x)
-  return (x and pass_assertion or fail_assertion)(self)
+  local r = (x and pass_assertion or fail_assertion)(self)
+  return r
 end
 
 local is_false = function(self,x)
-  return (x and fail_assertion or pass_assertion)(self)
+  local r = (x and fail_assertion or pass_assertion)(self)
+  return r
 end
 
 local methods = {
-  fail_eq = fail_eq,
   start = start,
   done = done,
   eq = eq,
   seq = seq,
   yes = is_true,
   no = is_false,
+  -- below: only to build custom tests
+  pass_eq = pass_eq,
+  fail_eq = fail_eq,
+  pass_assertion = pass_assertion,
+  fail_assertion = fail_assertion,
+  pass_tpl = pass_tpl,
+  fail_tpl = fail_tpl,
 }
 
 local new = function(verbose)
