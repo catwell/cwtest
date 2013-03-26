@@ -1,6 +1,50 @@
 require "pl.strict" -- enforced, on purpose ;)
-local tablex = require "pl.tablex"
 local pretty = require "pl.pretty"
+
+--- logic borrowed to Penlight
+
+local deepcompare
+deepcompare = function(t1,t2)
+  local ty1 = type(t1)
+  local ty2 = type(t2)
+  if ty1 ~= ty2 then return false end
+  -- non-table types can be directly compared
+  if ty1 ~= 'table' then return t1 == t2 end
+  -- as well as tables which have the metamethod __eq
+  local mt = getmetatable(t1)
+  if mt and mt.__eq then return t1 == t2 end
+  for k1 in pairs(t1) do
+    if t2[k1]==nil then return false end
+  end
+  for k2 in pairs(t2) do
+    if t1[k2]==nil then return false end
+  end
+  for k1,v1 in pairs(t1) do
+    local v2 = t2[k1]
+    if not deepcompare(v1,v2) then return false end
+  end
+  return true
+end
+
+local compare_no_order = function(t1,t2)
+  if #t1 ~= #t2 then return false end
+  local visited = {}
+  for i = 1,#t1 do
+    local val = t1[i]
+    local gotcha
+    for j = 1,#t2 do if not visited[j] then
+      if deepcompare(val,t2[j]) then
+        gotcha = j
+        break
+      end
+    end end
+    if not gotcha then return false end
+    visited[gotcha] = true
+  end
+  return true
+end
+
+--- end of logic borrowed to Penlight
 
 local printf = function(p,...)
   io.stdout:write(string.format(p,...)); io.stdout:flush()
@@ -102,7 +146,7 @@ local done = function(self)
 end
 
 local eq = function(self,x,y)
-  local ok = (x == y) or tablex.deepcompare(x,y)
+  local ok = (x == y) or deepcompare(x,y)
   local r = (ok and pass_eq or fail_eq)(self,x,y)
   return r
 end
@@ -110,7 +154,7 @@ end
 local neq = function(self,x,y)
   local sx,sy = pretty.write(x,""),pretty.write(y,"")
   local r
-  if tablex.deepcompare(x,y) then
+  if deepcompare(x,y) then
     r = fail_tpl(self," (%s == %s)",sx,sy)
   else
     r = pass_tpl(self," (%s != %s)",sx,sy)
@@ -119,7 +163,7 @@ local neq = function(self,x,y)
 end
 
 local seq = function(self,x,y) -- list-sets
-  local ok = tablex.compare_no_order(x,y,tablex.deepcompare)
+  local ok = compare_no_order(x,y,deepcompare)
   local r = (ok and pass_eq or fail_eq)(self,x,y)
   return r
 end
