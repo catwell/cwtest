@@ -107,6 +107,17 @@ local eq = function(self,x,y)
   return r
 end
 
+local neq = function(self,x,y)
+  local sx,sy = pretty.write(x,""),pretty.write(y,"")
+  local r
+  if tablex.deepcompare(x,y) then
+    r = fail_tpl(self," (%s == %s)",sx,sy)
+  else
+    r = pass_tpl(self," (%s != %s)",sx,sy)
+  end
+  return r
+end
+
 local seq = function(self,x,y) -- list-sets
   local ok = tablex.compare_no_order(x,y,tablex.deepcompare)
   local r = (ok and pass_eq or fail_eq)(self,x,y)
@@ -127,6 +138,7 @@ local methods = {
   start = start,
   done = done,
   eq = eq,
+  neq = neq,
   seq = seq,
   yes = is_true,
   no = is_false,
