@@ -3,7 +3,9 @@
 ## Presentation
 
 This is a very small Lua test helper that fits my needs and probably not yours.
-It depends on [Penlight](http://stevedonovan.github.com/Penlight/).
+
+It has no hard dependency but works better with
+[Penlight](http://stevedonovan.github.com/Penlight/) installed.
 
 If you need something more powerful, see
 [busted](http://olivinelabs.com/busted/) or
