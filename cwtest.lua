@@ -1,5 +1,11 @@
-require "pl.strict" -- enforced, on purpose ;)
-local pretty = require "pl.pretty"
+local has_strict = pcall(require,"pl.strict")
+local has_pretty,pretty = pcall(require,"pl.pretty")
+if not has_strict then
+  print("WARNING: pl.strict not found, strictness not enforced.")
+end
+if not has_pretty then
+  print("WARNING: pl.pretty not found, using alternate formatter.")
+end
 
 --- logic borrowed to Penlight
 
@@ -44,7 +50,38 @@ local compare_no_order = function(t1,t2)
   return true
 end
 
---- end of logic borrowed to Penlight
+--- basic pretty.write fallback
+
+local less_pretty_write
+less_pretty_write = function(t)
+  local quote = function(s)
+    if type(s) == "string" then
+      return string.format("%q",tostring(s))
+    else return tostring(s) end
+  end
+  if type(t) == "table" then
+    local r = {"{"}
+    for k,v in pairs(t) do
+      if type(k) ~= "number" then k = quote(k) end
+      r[#r+1] = "["
+      r[#r+1] = k
+      r[#r+1] = "]="
+      r[#r+1] = less_pretty_write(v)
+      r[#r+1] = ","
+    end
+    r[#r+1] = "}"
+    return table.concat(r)
+  else return quote(t) end
+end
+
+--- end of Penlight fallbacks
+
+local pretty_write
+if pretty then
+  pretty_write = function(x) return pretty.write(x,"") end
+else
+  pretty_write = less_pretty_write
+end
 
 local printf = function(p,...)
   io.stdout:write(string.format(p,...)); io.stdout:flush()
@@ -105,8 +142,8 @@ local pass_eq = function(self,x,y)
     "\n[OK] %s line %d\n  expected: %s\n       got: %s\n",
     info.short_src,
     info.currentline,
-    pretty.write(y,""),
-    pretty.write(x,"")
+    pretty_write(y),
+    pretty_write(x)
   )
   return true
 end
@@ -118,8 +155,8 @@ local fail_eq = function(self,x,y)
     "\n[KO] %s line %d\n  expected: %s\n       got: %s\n",
     info.short_src,
     info.currentline,
-    pretty.write(y,""),
-    pretty.write(x,"")
+    pretty_write(y),
+    pretty_write(x)
   )
   return false
 end
@@ -152,7 +189,7 @@ local eq = function(self,x,y)
 end
 
 local neq = function(self,x,y)
-  local sx,sy = pretty.write(x,""),pretty.write(y,"")
+  local sx,sy = pretty_write(x),pretty_write(y)
   local r
   if deepcompare(x,y) then
     r = fail_tpl(self," (%s == %s)",sx,sy)
