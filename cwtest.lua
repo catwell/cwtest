@@ -4,6 +4,7 @@ if not has_strict then
   print("WARNING: pl.strict not found, strictness not enforced.")
 end
 if not has_pretty then
+  pretty = nil
   print("WARNING: pl.pretty not found, using alternate formatter.")
 end
 
