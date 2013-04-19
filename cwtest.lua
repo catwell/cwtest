@@ -171,7 +171,8 @@ end
 local done = function(self)
   local f,s = self.failures,self.successes
   assert((f and s),"call start before done")
-  if #f > 0 then
+  local failed = (#f > 0)
+  if failed then
     print(" FAILED")
     for i=1,#f do io.stderr:write(f[i]) end
     print()
@@ -181,6 +182,7 @@ local done = function(self)
     print()
   end
   self.failures,self.successes = nil,nil
+  return (not failed)
 end
 
 local eq = function(self,x,y)
