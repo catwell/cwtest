@@ -210,13 +210,21 @@ local seq = function(self,x,y) -- list-sets
   return r
 end
 
-local is_true = function(self,x)
-  local r = (x and pass_assertion or fail_assertion)(self)
+local _assert_fun = function(x,...)
+  if (select('#',...) == 0) then
+    return (x and pass_assertion or fail_assertion)
+  else
+    return (x and pass_tpl or fail_tpl)
+  end
+end
+
+local is_true = function(self,x,...)
+  local r = _assert_fun(x,...)(self,...)
   return r
 end
 
-local is_false = function(self,x)
-  local r = (x and fail_assertion or pass_assertion)(self)
+local is_false = function(self,x,...)
+  local r = _assert_fun((not x),...)(self,...)
   return r
 end
 

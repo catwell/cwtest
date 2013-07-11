@@ -51,6 +51,8 @@ Squares .......... OK
 ### Advanced
 
 - `eq` called on tables uses deep comparison.
+- `neq` is the opposite of `eq`.
+- `yes` and `no` test boolean propositions.
 - `seq` can be used to compare two lists without considering order.
 
 You can define your own comparisons by adding methods to `T` and calling
