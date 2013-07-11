@@ -259,5 +259,6 @@ local new = function(verbose)
 end
 
 return {
-  new = new
+  new = new,
+  pretty_write = pretty_write,
 }

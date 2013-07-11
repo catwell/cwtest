@@ -11,6 +11,9 @@ INSTALL_LMOD=$(INSTALL_SHARE)/lua/$(ABIVER)
 all:
 	@echo "This is a pure module. Nothing to make :)"
 
+test:
+	$(LUA) $(LMODNAME).test.lua
+
 install:
 	install -m0644 $(LMODFILE) $(INSTALL_LMOD)/$(LMODFILE)
 
