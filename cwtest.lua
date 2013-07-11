@@ -90,9 +90,13 @@ local printf = function(p,...)
   io.stdout:write(string.format(p,...)); io.stdout:flush()
 end
 
+local eprintf = function(p,...)
+  io.stderr:write(string.format(p,...))
+end
+
 local pass_tpl = function(self,tpl,...)
   assert(type(tpl) == "string")
-  printf(".")
+  self.printf(".")
   local info = debug.getinfo(3)
   self.successes[#self.successes+1] = string.format(
     "\n[OK] %s line %d%s\n",
@@ -105,7 +109,7 @@ end
 
 local fail_tpl = function(self,tpl,...)
   assert(type(tpl) == "string")
-  printf("x")
+  self.printf("x")
   local info = debug.getinfo(3)
   self.failures[#self.failures+1] = string.format(
     "\n[KO] %s line %d%s\n",
@@ -117,7 +121,7 @@ local fail_tpl = function(self,tpl,...)
 end
 
 local pass_assertion = function(self)
-  printf(".")
+  self.printf(".")
   local info = debug.getinfo(3)
   self.successes[#self.successes+1] = string.format(
     "\n[OK] %s line %d (assertion)\n",
@@ -128,7 +132,7 @@ local pass_assertion = function(self)
 end
 
 local fail_assertion = function(self)
-  printf("x")
+  self.printf("x")
   local info = debug.getinfo(3)
   self.failures[#self.failures+1] = string.format(
     "\n[KO] %s line %d (assertion)\n",
@@ -139,7 +143,7 @@ local fail_assertion = function(self)
 end
 
 local pass_eq = function(self,x,y)
-  printf(".")
+  self.printf(".")
   local info = debug.getinfo(3)
   self.successes[#self.successes+1] = string.format(
     "\n[OK] %s line %d\n  expected: %s\n       got: %s\n",
@@ -152,7 +156,7 @@ local pass_eq = function(self,x,y)
 end
 
 local fail_eq = function(self,x,y)
-  printf("x")
+  self.printf("x")
   local info = debug.getinfo(3)
   self.failures[#self.failures+1] = string.format(
     "\n[KO] %s line %d\n  expected: %s\n       got: %s\n",
@@ -167,7 +171,7 @@ end
 local start = function(self,s)
   assert((not (self.failures or self.successes)),"test already started")
   self.failures,self.successes = {},{}
-  printf("%s ",s)
+  self.printf("%s ",s)
 end
 
 local done = function(self)
@@ -175,13 +179,13 @@ local done = function(self)
   assert((f and s),"call start before done")
   local failed = (#f > 0)
   if failed then
-    print(" FAILED")
+    self.print(" FAILED\n")
     for i=1,#f do io.stderr:write(f[i]) end
-    print()
-  else print(" OK") end
+    self.printf("\n")
+  else self.printf(" OK\n") end
   if self.verbose and (#s > 0) then
     for i=1,#s do io.stderr:write(s[i]) end
-    print()
+    self.printf("\n")
   end
   self.failures,self.successes = nil,nil
   return (not failed)
@@ -246,7 +250,12 @@ local methods = {
 }
 
 local new = function(verbose)
-  return setmetatable({verbose = verbose or false},{__index = methods})
+  local r = {
+    verbose = verbose or false,
+    printf = printf,
+    eprintf = eprintf,
+  }
+  return setmetatable(r,{__index = methods})
 end
 
 return {
