@@ -99,7 +99,7 @@ local pass_tpl = function(self,tpl,...)
   self.printf(".")
   local info = debug.getinfo(3)
   self.successes[#self.successes+1] = string.format(
-    "\n[OK] %s line %d%s\n",
+    "[OK] %s line %d%s",
     info.short_src,
     info.currentline,
     (select('#',...) == 0) and tpl or string.format(tpl,...)
@@ -112,7 +112,7 @@ local fail_tpl = function(self,tpl,...)
   self.printf("x")
   local info = debug.getinfo(3)
   self.failures[#self.failures+1] = string.format(
-    "\n[KO] %s line %d%s\n",
+    "[KO] %s line %d%s",
     info.short_src,
     info.currentline,
     (select('#',...) == 0) and tpl or string.format(tpl,...)
@@ -124,7 +124,7 @@ local pass_assertion = function(self)
   self.printf(".")
   local info = debug.getinfo(3)
   self.successes[#self.successes+1] = string.format(
-    "\n[OK] %s line %d (assertion)\n",
+    "[OK] %s line %d (assertion)",
     info.short_src,
     info.currentline
   )
@@ -135,7 +135,7 @@ local fail_assertion = function(self)
   self.printf("x")
   local info = debug.getinfo(3)
   self.failures[#self.failures+1] = string.format(
-    "\n[KO] %s line %d (assertion)\n",
+    "[KO] %s line %d (assertion)",
     info.short_src,
     info.currentline
   )
@@ -146,7 +146,7 @@ local pass_eq = function(self,x,y)
   self.printf(".")
   local info = debug.getinfo(3)
   self.successes[#self.successes+1] = string.format(
-    "\n[OK] %s line %d\n  expected: %s\n       got: %s\n",
+    "[OK] %s line %d\n  expected: %s\n       got: %s",
     info.short_src,
     info.currentline,
     pretty_write(y),
@@ -159,7 +159,7 @@ local fail_eq = function(self,x,y)
   self.printf("x")
   local info = debug.getinfo(3)
   self.failures[#self.failures+1] = string.format(
-    "\n[KO] %s line %d\n  expected: %s\n       got: %s\n",
+    "[KO] %s line %d\n  expected: %s\n       got: %s",
     info.short_src,
     info.currentline,
     pretty_write(y),
@@ -179,12 +179,12 @@ local done = function(self)
   assert((f and s),"call start before done")
   local failed = (#f > 0)
   if failed then
-    self.print(" FAILED\n")
-    for i=1,#f do io.stderr:write(f[i]) end
+    self.printf(" FAILED\n")
+    for i=1,#f do self.eprintf("\n%s\n",f[i]) end
     self.printf("\n")
   else self.printf(" OK\n") end
   if self.verbose and (#s > 0) then
-    for i=1,#s do io.stderr:write(s[i]) end
+    for i=1,#s do self.printf("\n%s\n",s[i]) end
     self.printf("\n")
   end
   self.failures,self.successes = nil,nil
