@@ -55,10 +55,10 @@ Squares .......... OK
 - `yes` and `no` test boolean propositions.
 - `seq` can be used to compare two lists without considering order.
 
-You can define your own comparisons by adding methods to `T` and calling
+You can define your own tests by adding methods to `T` and calling
 `pass_` and `fail_` methods.
 You can find an example of this
-[in fakeredis](https://github.com/catwell/cw-lua/blob/0503a0cbda94ac006485eb16daf55ceb030408da/fakeredis/fakeredis.test.lua#L7).
+[in fakeredis](https://github.com/catwell/cw-lua/blob/0503a0cbda94ac006485eb16daf55ceb030408da/fakeredis/fakeredis.test.lua#L7) and another one [in cwtest's meta-tests](https://github.com/catwell/cwtest/blob/727e8b0bb0058916966e4b7f14c37dc7779eb0c9/cwtest.test.lua#L26).
 
 ## Copyright
 
