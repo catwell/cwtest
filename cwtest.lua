@@ -215,19 +215,6 @@ local done = function(self)
       self.printf(" OK\n")
     end
   end
-  -- if self.verbosity == 0 then
-  --   if failed then
-  --     self.printf(" FAILED\n")
-  --     for i=1,#f do self.eprintf("\n%s\n",f[i]) end
-  --     self.printf("\n")
-  --   else self.printf(" OK\n") end
-  -- else
-  --   if failed then
-  --     self.printf("\n=== FAILED ===\n")
-  --   else
-  --     self.printf("\n=== OK ===\n")
-  --   end
-  -- end
   self.failures,self.successes = nil,nil
   return (not failed)
 end
