@@ -94,11 +94,34 @@ local eprintf = function(p,...)
   io.stderr:write(string.format(p,...))
 end
 
+local log_success = function(self,tpl,...)
+  assert(type(tpl) == "string")
+  local s = (select('#',...) == 0) and tpl or string.format(tpl,...)
+  self.successes[#self.successes+1] = s
+  if self.verbosity == 2 then
+    self.printf("\n%s\n",s)
+  else
+    self.printf(".")
+  end
+  return true
+end
+
+local log_failure = function(self,tpl,...)
+  assert(type(tpl) == "string")
+  local s = (select('#',...) == 0) and tpl or string.format(tpl,...)
+  self.failures[#self.failures+1] = s
+  if self.verbosity > 0 then
+    self.eprintf("\n%s\n",s)
+  else
+    self.printf("x")
+  end
+  return true
+end
+
 local pass_tpl = function(self,tpl,...)
   assert(type(tpl) == "string")
-  self.printf(".")
   local info = debug.getinfo(3)
-  self.successes[#self.successes+1] = string.format(
+  self:log_success(
     "[OK] %s line %d%s",
     info.short_src,
     info.currentline,
@@ -109,9 +132,8 @@ end
 
 local fail_tpl = function(self,tpl,...)
   assert(type(tpl) == "string")
-  self.printf("x")
   local info = debug.getinfo(3)
-  self.failures[#self.failures+1] = string.format(
+  self:log_failure(
     "[KO] %s line %d%s",
     info.short_src,
     info.currentline,
@@ -121,9 +143,8 @@ local fail_tpl = function(self,tpl,...)
 end
 
 local pass_assertion = function(self)
-  self.printf(".")
   local info = debug.getinfo(3)
-  self.successes[#self.successes+1] = string.format(
+  self:log_success(
     "[OK] %s line %d (assertion)",
     info.short_src,
     info.currentline
@@ -132,9 +153,8 @@ local pass_assertion = function(self)
 end
 
 local fail_assertion = function(self)
-  self.printf("x")
   local info = debug.getinfo(3)
-  self.failures[#self.failures+1] = string.format(
+  self:log_failure(
     "[KO] %s line %d (assertion)",
     info.short_src,
     info.currentline
@@ -143,9 +163,8 @@ local fail_assertion = function(self)
 end
 
 local pass_eq = function(self,x,y)
-  self.printf(".")
   local info = debug.getinfo(3)
-  self.successes[#self.successes+1] = string.format(
+  self:log_success(
     "[OK] %s line %d\n  expected: %s\n       got: %s",
     info.short_src,
     info.currentline,
@@ -156,9 +175,8 @@ local pass_eq = function(self,x,y)
 end
 
 local fail_eq = function(self,x,y)
-  self.printf("x")
   local info = debug.getinfo(3)
-  self.failures[#self.failures+1] = string.format(
+  self:log_failure(
     "[KO] %s line %d\n  expected: %s\n       got: %s",
     info.short_src,
     info.currentline,
@@ -171,7 +189,11 @@ end
 local start = function(self,s)
   assert((not (self.failures or self.successes)),"test already started")
   self.failures,self.successes = {},{}
-  self.printf("%s ",s)
+  if self.verbosity > 0 then
+    self.printf("\n=== %s ===\n",s)
+  else
+    self.printf("%s ",s)
+  end
 end
 
 local done = function(self)
@@ -179,14 +201,33 @@ local done = function(self)
   assert((f and s),"call start before done")
   local failed = (#f > 0)
   if failed then
-    self.printf(" FAILED\n")
-    for i=1,#f do self.eprintf("\n%s\n",f[i]) end
-    self.printf("\n")
-  else self.printf(" OK\n") end
-  if self.verbose and (#s > 0) then
-    for i=1,#s do self.printf("\n%s\n",s[i]) end
-    self.printf("\n")
+    if self.verbosity > 0 then
+      self.printf("\n=== FAILED ===\n")
+    else
+      self.printf(" FAILED\n")
+      for i=1,#f do self.eprintf("\n%s\n",f[i]) end
+      self.printf("\n")
+    end
+  else
+    if self.verbosity > 0 then
+      self.printf("\n=== OK ===\n")
+    else
+      self.printf(" OK\n")
+    end
   end
+  -- if self.verbosity == 0 then
+  --   if failed then
+  --     self.printf(" FAILED\n")
+  --     for i=1,#f do self.eprintf("\n%s\n",f[i]) end
+  --     self.printf("\n")
+  --   else self.printf(" OK\n") end
+  -- else
+  --   if failed then
+  --     self.printf("\n=== FAILED ===\n")
+  --   else
+  --     self.printf("\n=== OK ===\n")
+  --   end
+  -- end
   self.failures,self.successes = nil,nil
   return (not failed)
 end
@@ -241,6 +282,8 @@ local methods = {
   yes = is_true,
   no = is_false,
   -- below: only to build custom tests
+  log_success = log_success,
+  log_failure = log_failure,
   pass_eq = pass_eq,
   fail_eq = fail_eq,
   pass_assertion = pass_assertion,
@@ -249,9 +292,18 @@ local methods = {
   fail_tpl = fail_tpl,
 }
 
-local new = function(verbose)
+local new = function(verbosity)
+  if not verbosity then
+    verbosity = 0
+  elseif type(verbosity) ~= "number" then
+    verbosity = 1
+  end
+  assert(
+    (math.floor(verbosity) == verbosity) and
+    (verbosity >= 0) and (verbosity < 3)
+  )
   local r = {
-    verbose = verbose or false,
+    verbosity = verbosity,
     printf = printf,
     eprintf = eprintf,
   }

@@ -50,10 +50,22 @@ Squares .......... OK
 
 ### Advanced
 
+#### Other tests
+
 - `eq` called on tables uses deep comparison.
 - `neq` is the opposite of `eq`.
 - `yes` and `no` test boolean propositions.
 - `seq` can be used to compare two lists without considering order.
+
+#### Verbosity
+
+You can pass an optional numeric argument between 0 and 2 to `cwtest.new()` to set verbosity. The default is 0.
+
+Verbosity level 1 will print errors inline as soon as they happen, which may be useful to debug an error that makes your tests crash later on.
+
+Verbosity level 2 will print successes in full form as well as errors. You probably do not need this.
+
+#### Custom tests
 
 You can define your own tests by adding methods to `T` and calling
 `pass_` and `fail_` methods.
