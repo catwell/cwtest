@@ -2,14 +2,14 @@
 
 ## Presentation
 
-This is a very small Lua test helper that fits my needs and probably not yours.
+This is a small Lua test helper with no hard dependency (but that works better with
+[Penlight](http://stevedonovan.github.com/Penlight/) installed).
 
-It has no hard dependency but works better with
-[Penlight](http://stevedonovan.github.com/Penlight/) installed.
+## Alternatives
 
-If you need something more powerful, see
-[busted](http://olivinelabs.com/busted/) or
-[lua-TestMore](http://fperrad.github.com/lua-TestMore/).
+- [busted](http://olivinelabs.com/busted/)
+- [lua-TestMore](http://fperrad.github.com/lua-TestMore/)
+- [Unit Testing](http://lua-users.org/wiki/UnitTesting) page on the Lua Users' Wiki
 
 ## Basic usage
 
