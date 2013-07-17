@@ -77,6 +77,7 @@ if not T:done() then return 1 end
 - `neq` is the opposite of `eq`.
 - `yes` and `no` test boolean propositions.
 - `seq` can be used to compare two lists without considering order.
+- `err` tests that an error is raised by a function.
 
 ### Verbosity
 

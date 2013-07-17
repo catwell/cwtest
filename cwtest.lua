@@ -260,6 +260,41 @@ local is_false = function(self,x,...)
   return r
 end
 
+local err = function(self,f,e)
+  local r = { pcall(f) }
+  if e then
+    assert(type(e) == "string")
+    if r[1] then
+      table.remove(r,1)
+      r = fail_tpl(
+        self,
+        "\n  expected error: %s\n             got: %s",
+        e,pretty.write(r,"")
+      )
+    elseif r[2] ~= e then
+      r = fail_tpl(
+        self,
+        "\n  expected error: %s\n       got error: %s",
+        e,r[2]
+      )
+    else
+      r = pass_tpl(self,": error [[%s]] caught",e)
+    end
+  else
+    if r[1] then
+      table.remove(r,1)
+      r = fail_tpl(
+        self,
+        ": expected error, got %s",
+        pretty.write(r,"")
+      )
+    else
+      r = pass_tpl(self,": error caught")
+    end
+  end
+  return r
+end
+
 local methods = {
   start = start,
   done = done,
@@ -268,6 +303,7 @@ local methods = {
   seq = seq,
   yes = is_true,
   no = is_false,
+  err = err,
   -- below: only to build custom tests
   log_success = log_success,
   log_failure = log_failure,
