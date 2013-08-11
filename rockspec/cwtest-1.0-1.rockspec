@@ -1,8 +1,9 @@
 package = "cwtest"
-version = "scm-1"
+version = "1.0-1"
 
 source = {
    url = "git://github.com/catwell/cwtest.git",
+   branch = "v1.0",
 }
 
 description = {
