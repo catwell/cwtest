@@ -269,7 +269,7 @@ local err = function(self,f,e)
       r = fail_tpl(
         self,
         "\n  expected error: %s\n             got: %s",
-        e,pretty.write(r,"")
+        e,pretty_write(r,"")
       )
     elseif r[2] ~= e then
       r = fail_tpl(
@@ -286,7 +286,7 @@ local err = function(self,f,e)
       r = fail_tpl(
         self,
         ": expected error, got %s",
-        pretty.write(r,"")
+        pretty_write(r,"")
       )
     else
       r = pass_tpl(self,": error caught")
