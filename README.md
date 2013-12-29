@@ -97,3 +97,4 @@ You can find an example of this
 ## Copyright
 
 Copyright (c) 2012-2013 Moodstocks SAS
+Copyright (c) 2014 Pierre Chapuis

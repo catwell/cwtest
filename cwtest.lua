@@ -1,5 +1,5 @@
-local has_strict = pcall(require,"pl.strict")
-local has_pretty,pretty = pcall(require,"pl.pretty")
+local has_strict = pcall(require, "pl.strict")
+local has_pretty, pretty = pcall(require, "pl.pretty")
 if not has_strict then
   print("WARNING: pl.strict not found, strictness not enforced.")
 end
@@ -11,7 +11,7 @@ end
 --- logic borrowed to Penlight
 
 local deepcompare
-deepcompare = function(t1,t2)
+deepcompare = function(t1, t2)
   local ty1 = type(t1)
   local ty2 = type(t2)
   if ty1 ~= ty2 then return false end
@@ -21,19 +21,19 @@ deepcompare = function(t1,t2)
   local mt = getmetatable(t1)
   if mt and mt.__eq then return t1 == t2 end
   for k1 in pairs(t1) do
-    if t2[k1]==nil then return false end
+    if t2[k1] == nil then return false end
   end
   for k2 in pairs(t2) do
-    if t1[k2]==nil then return false end
+    if t1[k2] == nil then return false end
   end
   for k1,v1 in pairs(t1) do
     local v2 = t2[k1]
-    if not deepcompare(v1,v2) then return false end
+    if not deepcompare(v1, v2) then return false end
   end
   return true
 end
 
-local compare_no_order = function(t1,t2)
+local compare_no_order = function(t1, t2)
   -- non-table types are considered *never* equal here
   if (type(t1) ~= "table") or (type(t2) ~= "table") then return false end
   if #t1 ~= #t2 then return false end
@@ -42,7 +42,7 @@ local compare_no_order = function(t1,t2)
     local val = t1[i]
     local gotcha
     for j = 1,#t2 do if not visited[j] then
-      if deepcompare(val,t2[j]) then
+      if deepcompare(val, t2[j]) then
         gotcha = j
         break
       end
@@ -59,7 +59,7 @@ local less_pretty_write
 less_pretty_write = function(t)
   local quote = function(s)
     if type(s) == "string" then
-      return string.format("%q",tostring(s))
+      return string.format("%q", tostring(s))
     else return tostring(s) end
   end
   if type(t) == "table" then
@@ -81,63 +81,63 @@ end
 
 local pretty_write
 if pretty then
-  pretty_write = function(x) return pretty.write(x,"") end
+  pretty_write = function(x) return pretty.write(x, "") end
 else
   pretty_write = less_pretty_write
 end
 
-local printf = function(p,...)
-  io.stdout:write(string.format(p,...)); io.stdout:flush()
+local printf = function(p, ...)
+  io.stdout:write(string.format(p, ...)); io.stdout:flush()
 end
 
-local eprintf = function(p,...)
-  io.stderr:write(string.format(p,...))
+local eprintf = function(p, ...)
+  io.stderr:write(string.format(p, ...))
 end
 
-local log_success = function(self,tpl,...)
+local log_success = function(self, tpl, ...)
   assert(type(tpl) == "string")
-  local s = (select('#',...) == 0) and tpl or string.format(tpl,...)
+  local s = (select('#', ...) == 0) and tpl or string.format(tpl, ...)
   self.successes[#self.successes+1] = s
   if self.verbosity == 2 then
-    self.printf("\n%s\n",s)
+    self.printf("\n%s\n", s)
   else
     self.printf(".")
   end
   return true
 end
 
-local log_failure = function(self,tpl,...)
+local log_failure = function(self, tpl, ...)
   assert(type(tpl) == "string")
-  local s = (select('#',...) == 0) and tpl or string.format(tpl,...)
+  local s = (select('#', ...) == 0) and tpl or string.format(tpl, ...)
   self.failures[#self.failures+1] = s
   if self.verbosity > 0 then
-    self.eprintf("\n%s\n",s)
+    self.eprintf("\n%s\n", s)
   else
     self.printf("x")
   end
   return true
 end
 
-local pass_tpl = function(self,tpl,...)
+local pass_tpl = function(self, tpl, ...)
   assert(type(tpl) == "string")
   local info = debug.getinfo(3)
   self:log_success(
     "[OK] %s line %d%s",
     info.short_src,
     info.currentline,
-    (select('#',...) == 0) and tpl or string.format(tpl,...)
+    (select('#', ...) == 0) and tpl or string.format(tpl, ...)
   )
   return true
 end
 
-local fail_tpl = function(self,tpl,...)
+local fail_tpl = function(self, tpl, ...)
   assert(type(tpl) == "string")
   local info = debug.getinfo(3)
   self:log_failure(
     "[KO] %s line %d%s",
     info.short_src,
     info.currentline,
-    (select('#',...) == 0) and tpl or string.format(tpl,...)
+    (select('#', ...) == 0) and tpl or string.format(tpl, ...)
   )
   return false
 end
@@ -162,7 +162,7 @@ local fail_assertion = function(self)
   return false
 end
 
-local pass_eq = function(self,x,y)
+local pass_eq = function(self, x, y)
   local info = debug.getinfo(3)
   self:log_success(
     "[OK] %s line %d\n  expected: %s\n       got: %s",
@@ -174,7 +174,7 @@ local pass_eq = function(self,x,y)
   return true
 end
 
-local fail_eq = function(self,x,y)
+local fail_eq = function(self, x, y)
   local info = debug.getinfo(3)
   self:log_failure(
     "[KO] %s line %d\n  expected: %s\n       got: %s",
@@ -186,26 +186,26 @@ local fail_eq = function(self,x,y)
   return false
 end
 
-local start = function(self,s)
-  assert((not (self.failures or self.successes)),"test already started")
-  self.failures,self.successes = {},{}
+local start = function(self, s)
+  assert((not (self.failures or self.successes)), "test already started")
+  self.failures, self.successes = {}, {}
   if self.verbosity > 0 then
-    self.printf("\n=== %s ===\n",s)
+    self.printf("\n=== %s ===\n", s)
   else
-    self.printf("%s ",s)
+    self.printf("%s ", s)
   end
 end
 
 local done = function(self)
-  local f,s = self.failures,self.successes
-  assert((f and s),"call start before done")
+  local f, s = self.failures, self.successes
+  assert((f and s), "call start before done")
   local failed = (#f > 0)
   if failed then
     if self.verbosity > 0 then
       self.printf("\n=== FAILED ===\n")
     else
       self.printf(" FAILED\n")
-      for i=1,#f do self.eprintf("\n%s\n",f[i]) end
+      for i=1,#f do self.eprintf("\n%s\n", f[i]) end
       self.printf("\n")
     end
   else
@@ -215,81 +215,81 @@ local done = function(self)
       self.printf(" OK\n")
     end
   end
-  self.failures,self.successes = nil,nil
+  self.failures, self.successes = nil, nil
   return (not failed)
 end
 
-local eq = function(self,x,y)
-  local ok = (x == y) or deepcompare(x,y)
-  local r = (ok and pass_eq or fail_eq)(self,x,y)
+local eq = function(self, x, y)
+  local ok = (x == y) or deepcompare(x, y)
+  local r = (ok and pass_eq or fail_eq)(self, x, y)
   return r
 end
 
-local neq = function(self,x,y)
-  local sx,sy = pretty_write(x),pretty_write(y)
+local neq = function(self, x, y)
+  local sx, sy = pretty_write(x), pretty_write(y)
   local r
-  if deepcompare(x,y) then
-    r = fail_tpl(self," (%s == %s)",sx,sy)
+  if deepcompare(x, y) then
+    r = fail_tpl(self, " (%s == %s)", sx, sy)
   else
-    r = pass_tpl(self," (%s != %s)",sx,sy)
+    r = pass_tpl(self, " (%s != %s)", sx, sy)
   end
   return r
 end
 
-local seq = function(self,x,y) -- list-sets
-  local ok = compare_no_order(x,y,deepcompare)
-  local r = (ok and pass_eq or fail_eq)(self,x,y)
+local seq = function(self, x, y) -- list-sets
+  local ok = compare_no_order(x, y, deepcompare)
+  local r = (ok and pass_eq or fail_eq)(self, x, y)
   return r
 end
 
-local _assert_fun = function(x,...)
-  if (select('#',...) == 0) then
+local _assert_fun = function(x, ...)
+  if (select('#', ...) == 0) then
     return (x and pass_assertion or fail_assertion)
   else
     return (x and pass_tpl or fail_tpl)
   end
 end
 
-local is_true = function(self,x,...)
-  local r = _assert_fun(x,...)(self,...)
+local is_true = function(self, x, ...)
+  local r = _assert_fun(x, ...)(self, ...)
   return r
 end
 
-local is_false = function(self,x,...)
-  local r = _assert_fun((not x),...)(self,...)
+local is_false = function(self, x, ...)
+  local r = _assert_fun((not x), ...)(self, ...)
   return r
 end
 
-local err = function(self,f,e)
+local err = function(self, f, e)
   local r = { pcall(f) }
   if e then
     assert(type(e) == "string")
     if r[1] then
-      table.remove(r,1)
+      table.remove(r, 1)
       r = fail_tpl(
         self,
         "\n  expected error: %s\n             got: %s",
-        e,pretty_write(r,"")
+        e, pretty_write(r, "")
       )
     elseif r[2] ~= e then
       r = fail_tpl(
         self,
         "\n  expected error: %s\n       got error: %s",
-        e,r[2]
+        e, r[2]
       )
     else
-      r = pass_tpl(self,": error [[%s]] caught",e)
+      r = pass_tpl(self, ": error [[%s]] caught", e)
     end
   else
     if r[1] then
-      table.remove(r,1)
+      table.remove(r, 1)
       r = fail_tpl(
         self,
         ": expected error, got %s",
-        pretty_write(r,"")
+        pretty_write(r, "")
       )
     else
-      r = pass_tpl(self,": error caught")
+      r = pass_tpl(self, ": error caught")
     end
   end
   return r
@@ -330,7 +330,7 @@ local new = function(verbosity)
     printf = printf,
     eprintf = eprintf,
   }
-  return setmetatable(r,{__index = methods})
+  return setmetatable(r, {__index = methods})
 end
 
 return {
