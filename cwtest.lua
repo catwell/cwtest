@@ -263,22 +263,41 @@ end
 local err = function(self, f, e)
   local r = { pcall(f) }
   if e then
-    assert(type(e) == "string")
-    if r[1] then
-      table.remove(r, 1)
-      r = fail_tpl(
-        self,
-        "\n  expected error: %s\n             got: %s",
-        e, pretty_write(r, "")
-      )
-    elseif r[2] ~= e then
-      r = fail_tpl(
-        self,
-        "\n  expected error: %s\n       got error: %s",
-        e, r[2]
-      )
-    else
-      r = pass_tpl(self, ": error [[%s]] caught", e)
+    if type(e) == "string" then
+      if r[1] then
+        table.remove(r, 1)
+        r = fail_tpl(
+          self,
+          "\n  expected error: %s\n             got: %s",
+          e, pretty_write(r, "")
+        )
+      elseif r[2] ~= e then
+        r = fail_tpl(
+          self,
+          "\n  expected error: %s\n       got error: %s",
+          e, r[2]
+        )
+      else
+        r = pass_tpl(self, ": error [[%s]] caught", e)
+      end
+    elseif type(e) == "table" and type(e.matching) == "string" then
+      local pattern = e.matching
+      if r[1] then
+        table.remove(r, 1)
+        r = fail_tpl(
+          self,
+          "\n  expected error, got: %s",
+          e, pretty_write(r, "")
+        )
+      elseif not r[2]:match(pattern) then
+        r = fail_tpl(
+          self,
+          "\n  expected error matching: %q\n       got error: %s",
+          pattern, r[2]
+        )
+      else
+        r = pass_tpl(self, ": error [[%s]] caught", e)
+      end
     end
   else
     if r[1] then
