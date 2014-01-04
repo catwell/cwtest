@@ -33,7 +33,8 @@ deepcompare = function(t1, t2)
   return true
 end
 
-local compare_no_order = function(t1, t2)
+local compare_no_order = function(t1, t2, cmp)
+  cmp = cmp or deepcompare
   -- non-table types are considered *never* equal here
   if (type(t1) ~= "table") or (type(t2) ~= "table") then return false end
   if #t1 ~= #t2 then return false end
@@ -42,7 +43,7 @@ local compare_no_order = function(t1, t2)
     local val = t1[i]
     local gotcha
     for j = 1,#t2 do if not visited[j] then
-      if deepcompare(val, t2[j]) then
+      if cmp(val, t2[j]) then
         gotcha = j
         break
       end
@@ -237,7 +238,7 @@ local neq = function(self, x, y)
 end
 
 local seq = function(self, x, y) -- list-sets
-  local ok = compare_no_order(x, y, deepcompare)
+  local ok = compare_no_order(x, y)
   local r = (ok and pass_eq or fail_eq)(self, x, y)
   return r
 end
@@ -355,4 +356,6 @@ end
 return {
   new = new,
   pretty_write = pretty_write,
+  deepcompare = deepcompare,
+  compare_no_order = compare_no_order,
 }
