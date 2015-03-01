@@ -1,5 +1,7 @@
 # cwtest
 
+[![Build Status](https://travis-ci.org/catwell/cwtest.png?branch=master)](https://travis-ci.org/catwell/cwtest)
+
 ## Presentation
 
 This is a small Lua test helper with no hard dependency (but that works better with
