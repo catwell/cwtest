@@ -217,6 +217,7 @@ local done = function(self)
     end
   end
   self.failures, self.successes = nil, nil
+  if failed then self.tainted = true end
   return (not failed)
 end
 
@@ -315,6 +316,10 @@ local err = function(self, f, e)
   return r
 end
 
+local exit = function(self)
+  os.exit(self.tainted and 1 or 0)
+end
+
 local methods = {
   start = start,
   done = done,
@@ -324,6 +329,7 @@ local methods = {
   yes = is_true,
   no = is_false,
   err = err,
+  exit = exit,
   -- below: only to build custom tests
   log_success = log_success,
   log_failure = log_failure,
@@ -349,6 +355,7 @@ local new = function(verbosity)
     verbosity = verbosity,
     printf = printf,
     eprintf = eprintf,
+    tainted = false,
   }
   return setmetatable(r, {__index = methods})
 end

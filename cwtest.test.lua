@@ -76,7 +76,7 @@ T:start("successes"); do
   T:yes(C:err( function() error("foo", 0) end ))
   T:last_success( ": error caught" )
   T:eq( C.failures, {} )
-  C:done()
+  T:eq(C:done(), true)
 end; T:done()
 
 T:start("failures"); do
@@ -110,5 +110,7 @@ T:start("failures"); do
   T:no(C:err( function() return 42 end ))
   T:last_failure( ": expected error, got %s", pw({42}) )
   T:eq( C.successes, {} )
-  C:done()
+  T:eq(C:done(), false)
 end; T:done()
+
+T:exit()

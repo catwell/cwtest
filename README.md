@@ -32,6 +32,8 @@ T:start("Squares"); do -- you can re-use T once done
     T:eq( i*i, x )
   end
 end; T:done()
+
+T:exit()
 ```
 
 Output:
@@ -68,8 +70,12 @@ That being said, the `do/end` blocks with indentation help to separate your test
 T:start("stuff"); do
   T:eq(continue, true)
 end
-if not T:done() then return 1 end
+if not T:done() then T:exit() end
 ```
+
+### exit()
+
+`exit()` leaves the interpreter, returning an error code of 1 if any call to `done()`  has failed, 0 otherwise. You do not have to call `exit()`, but doing so makes cwtest work with CI software.
 
 ### Other tests
 
