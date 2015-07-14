@@ -19,8 +19,7 @@ before_install:
   - source .travis/setenv_lua.sh
 
 install:
-  - bash .travis/setup_lua.sh
-  - sudo luarocks install penlight
+  - luarocks install penlight
 
 script:
   - lua cwtest.test.lua
