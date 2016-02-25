@@ -95,11 +95,20 @@ local eprintf = function(p, ...)
     io.stderr:write(string.format(p, ...))
 end
 
+local elapsed = function(self)
+    return #self.successes + #self.failures
+end
+
 local log_success = function(self, tpl, ...)
     assert(type(tpl) == "string")
     local s = (select('#', ...) == 0) and tpl or string.format(tpl, ...)
     self.successes[#self.successes+1] = s
-    if self.verbosity == 2 then
+    if self.tap then
+        self.printf(
+            "    ok %d - %s %d\n",
+            self:elapsed(), self.suite.name, self:elapsed()
+        )
+    elseif self.verbosity == 2 then
         self.printf("\n%s\n", s)
     else
         self.printf(".")
@@ -111,7 +120,12 @@ local log_failure = function(self, tpl, ...)
     assert(type(tpl) == "string")
     local s = (select('#', ...) == 0) and tpl or string.format(tpl, ...)
     self.failures[#self.failures+1] = s
-    if self.verbosity > 0 then
+    if self.tap then
+        self.printf(
+            "    not ok %d - %s %d\n",
+            self:elapsed(), self.suite.name, self:elapsed()
+        )
+    elseif self.verbosity > 0 then
         self.eprintf("\n%s\n", s)
     else
         self.printf("x")
@@ -187,10 +201,27 @@ local fail_eq = function(self, x, y)
     return false
 end
 
-local start = function(self, s)
+local start = function(self, s, n)
     assert((not (self.failures or self.successes)), "test already started")
+    assert(s, "no name given to test suite")
+    if type(n) == "number" then
+        self.suite = {name = s, plan = n}
+    else
+        self.suite = {name = s}
+    end
     self.failures, self.successes = {}, {}
-    if self.verbosity > 0 then
+    if self.tap then
+        if not self.tap.started then
+            self.tap.started = 0
+            if self.tap.plan then
+                self.printf("1..%d\n", self.tap.plan)
+            end
+        end
+        self.tap.started = self.tap.started + 1
+        if self.suite.plan then
+            self.printf("    1..%d\n", self.suite.plan)
+        end
+    elseif self.verbosity > 0 then
         self.printf("\n=== %s ===\n", s)
     else
         self.printf("%s ", s)
@@ -200,23 +231,43 @@ end
 local done = function(self)
     local f, s = self.failures, self.successes
     assert((f and s), "call start before done")
-    local failed = (#f > 0)
-    if failed then
-        if self.verbosity > 0 then
-            self.printf("\n=== FAILED ===\n")
+    local bad_plan = self.suite.plan and (self.suite.plan ~= self:elapsed())
+    local failed = #f > 0 or bad_plan
+    local plan = string.format("%d OK, %d KO", #s, #f)
+    if self.suite.plan then
+        plan = string.format("%s, %d total", plan, self.suite.plan)
+    end
+    if self.tap then
+        if not self.suite.plan then
+            self.printf("    1..%d\n", #f + #s)
+        end
+        if failed then
+            self.printf(
+                "not ok %d - %s (%s)\n",
+                self.tap.started, self.suite.name, plan
+            )
         else
-            self.printf(" FAILED\n")
+            self.printf(
+                "ok %d - %s (%s)\n",
+                self.tap.started, self.suite.name, plan
+            )
+        end
+    elseif failed then
+        if self.verbosity > 0 then
+            self.printf("\n=== FAILED (%s) ===\n", plan)
+        else
+            self.printf(" FAILED (%s)\n", plan)
             for i=1,#f do self.eprintf("\n%s\n", f[i]) end
             self.printf("\n")
         end
     else
         if self.verbosity > 0 then
-            self.printf("\n=== OK ===\n")
+            self.printf("\n=== OK (%s) ===\n", plan)
         else
-            self.printf(" OK\n")
+            self.printf(" OK (%s)\n", plan)
         end
     end
-    self.failures, self.successes = nil, nil
+    self.failures, self.successes, self.suite = nil, nil, nil
     if failed then self.tainted = true end
     return (not failed)
 end
@@ -317,6 +368,9 @@ local err = function(self, f, e)
 end
 
 local exit = function(self)
+    if self.tap and self.tap.started and not self.tap.plan then
+        self.printf("1..%d\n", self.tap.started)
+    end
     os.exit(self.tainted and 1 or 0)
 end
 
@@ -331,6 +385,7 @@ local methods = {
     err = err,
     exit = exit,
     -- below: only to build custom tests
+    elapsed = elapsed,
     log_success = log_success,
     log_failure = log_failure,
     pass_eq = pass_eq,
@@ -341,22 +396,47 @@ local methods = {
     fail_tpl = fail_tpl,
 }
 
-local new = function(verbosity)
-    if not verbosity then
-        verbosity = 0
-    elseif type(verbosity) ~= "number" then
-        verbosity = 1
+local new = function(args)
+
+    -- backward compat
+    if type(args) == "number" then args = {verbosity = args} end
+    if not args then args = {} end
+
+    -- do not modify input
+    args = {verbosity = args.verbosity, tap = args.tap, env = args.env}
+
+    -- environment override
+    if args.env ~= false then
+        local _p = type(args.env) == "string" and args.env or "CWTEST_"
+        local v = tonumber(os.getenv(_p .. "VERBOSITY"))
+        if v then args.verbosity = v end
+        v = os.getenv(_p .. "TAP")
+        if v then args.tap = tonumber(v) or (v ~= "") end
     end
+
+    if not (args.verbosity) then args.verbosity = 0 end
+    if type(args.verbosity) ~= "number" then args.verbosity = 1 end
     assert(
-        (math.floor(verbosity) == verbosity) and
-        (verbosity >= 0) and (verbosity < 3)
+        (math.floor(args.verbosity) == args.verbosity) and
+        (args.verbosity >= 0) and (args.verbosity < 3)
     )
+
+    if args.tap then
+        if type(args.tap) == "number" then
+            args.tap = { plan = args.tap }
+        elseif type(args.tap) ~= "table" then
+            args.tap = {}
+        end
+    end
+
     local r = {
-        verbosity = verbosity,
+        verbosity = args.verbosity,
+        tap = args.tap,
         printf = printf,
         eprintf = eprintf,
         tainted = false,
     }
+
     return setmetatable(r, {__index = methods})
 end
 

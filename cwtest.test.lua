@@ -47,7 +47,7 @@ T.last_failure = function(self, tpl, ...)
     return r
 end
 
-T:start("successes"); do
+T:start("successes", 26); do
     C:start("successes")
     T:eq( C.successes, {} )
     T:eq( C.failures, {} )
@@ -79,7 +79,7 @@ T:start("successes"); do
     T:eq(C:done(), true)
 end; T:done()
 
-T:start("failures"); do
+T:start("failures", 28); do
     C:start("failures")
     T:eq( C.successes, {} )
     T:eq( C.failures, {} )
