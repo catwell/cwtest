@@ -1,6 +1,7 @@
 # cwtest
 
-[![Build Status](https://travis-ci.org/catwell/cwtest.png?branch=master)](https://travis-ci.org/catwell/cwtest)
+![CI Status](https://github.com/catwell/cwtest/actions/workflows/ci.yml/badge.svg?branch=master)
+
 
 ## Presentation
 

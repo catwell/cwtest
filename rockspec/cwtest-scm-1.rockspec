@@ -23,3 +23,8 @@ build = {
     install = { lua = { cwtest = "cwtest.lua" } },
     copy_directories = {},
 }
+
+test = {
+   type = "command",
+   script = "cwtest.test.lua",
+}
