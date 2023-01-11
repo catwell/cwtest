@@ -3,8 +3,8 @@ local cwtest = require "cwtest"
 local T = cwtest.new()
 
 local C = cwtest.new() -- tested instance
-C.printf = function(...) end
-C.eprintf = function(...) end
+C.printf = function() end
+C.eprintf = function() end
 
 local short_src = debug.getinfo(1).short_src
 local exp_got_tpl = "\n  expected: %s\n       got: %s"

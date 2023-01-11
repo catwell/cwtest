@@ -21,17 +21,17 @@ local cwtest = require "cwtest"
 local T = cwtest.new() -- instantiate a test
 
 T:start("Multiplication"); do -- start a test
-  T:eq( 2*3, 6 ) -- test equality
-  T:eq( 3*3*3, 27 )
-  T:eq( 3*4, 13 ) -- uh?
-  T:eq( 7*7, 49 )
+  T:eq( 2 * 3, 6 ) -- test equality
+  T:eq( 3 * 3 * 3, 27 )
+  T:eq( 3 * 4, 13 ) -- uh?
+  T:eq( 7 * 7, 49 )
 end; T:done() -- end a test
 
 T:start("Squares"); do -- you can re-use T once done
-  for i=1,10 do
+  for i = 1, 10 do
     local x = 0
-    for j=1,i do x = x+i end
-    T:eq( i*i, x )
+    for _ = 1, i do x = x + i end
+    T:eq( i * i, x )
   end
 end; T:done()
 
