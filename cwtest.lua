@@ -1,14 +1,4 @@
-local has_strict = pcall(require, "pl.strict")
-local has_pretty, pretty = pcall(require, "pl.pretty")
-if not has_strict then
-    print("WARNING: pl.strict not found, strictness not enforced.")
-end
-if not has_pretty then
-    pretty = nil
-    print("WARNING: pl.pretty not found, using alternate formatter.")
-end
-
---- logic borrowed to Penlight
+--- logic borrowed from Penlight
 
 local deepcompare
 deepcompare = function(t1, t2)
@@ -54,10 +44,10 @@ local compare_no_order = function(t1, t2, cmp)
     return true
 end
 
---- basic pretty.write fallback
+--- end of code from Penlight
 
-local less_pretty_write
-less_pretty_write = function(t)
+local pretty_write
+pretty_write = function(t)
     local quote = function(s)
         if type(s) == "string" then
             return string.format("%q", tostring(s))
@@ -70,21 +60,12 @@ less_pretty_write = function(t)
             r[#r+1] = "["
             r[#r+1] = k
             r[#r+1] = "]="
-            r[#r+1] = less_pretty_write(v)
+            r[#r+1] = pretty_write(v)
             r[#r+1] = ","
         end
         r[#r+1] = "}"
         return table.concat(r)
     else return quote(t) end
-end
-
---- end of Penlight fallbacks
-
-local pretty_write
-if pretty then
-    pretty_write = function(x) return pretty.write(x, "") end
-else
-    pretty_write = less_pretty_write
 end
 
 local printf = function(p, ...)

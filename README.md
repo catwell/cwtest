@@ -4,8 +4,7 @@
 
 ## Presentation
 
-This is a small Lua test helper with no hard dependency (but that works better with
-[Penlight](http://stevedonovan.github.com/Penlight/) installed).
+This is a small Lua test helper with no hard dependency.
 
 ## Alternatives
 
@@ -163,4 +162,6 @@ You can find an example of this
 ## Copyright
 
 - Copyright (c) 2012-2013 Moodstocks SAS
-- Copyright (c) 2014-2016 Pierre Chapuis
+- Copyright (c) 2014-2022 Pierre Chapuis
+
+Some code borrowed from [Penlight](https://github.com/lunarmodules/Penlight), released under the MIT license by Steve Donovan and David Manura.

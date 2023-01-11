@@ -1,3 +1,5 @@
+rockspec_format = "3.0"
+
 package = "cwtest"
 version = "scm-1"
 
@@ -10,14 +12,11 @@ description = {
     detailed = [[
         cwtest is a tiny Lua test helper.
     ]],
-    homepage = "http://github.com/catwell/cwtest",
+    homepage = "https://github.com/catwell/cwtest",
     license = "MIT/X11",
 }
 
-dependencies = {
-    "lua >= 5.1",
-    -- "penlight", -- not mandatory, but strongly recommended
-}
+dependencies = { "lua >= 5.1" }
 
 build = {
     type = "none",
