@@ -5,7 +5,7 @@
 
 ## Presentation
 
-This is a small Lua test helper with no hard dependency.
+This is a small Teal / Lua test helper with no hard dependency.
 
 ## Alternatives
 
@@ -49,6 +49,12 @@ Multiplication ...x. FAILED (3 OK, 1 KO)
 
 Squares .......... OK (10 OK, 0 KO)
 ```
+
+## Changes
+
+### 3.0
+
+cwtest version 3 was rewritten in [Teal](https://github.com/teal-language/tl). Teal compiles down to Lua so you can still use it in Lua. It has the same interface with one major caveat: `failures`, `successes` and `suite` are now method accessors, i.e. you must use `T:successes()` instead of `T.successes`.
 
 ## Details
 
@@ -163,6 +169,6 @@ You can find an example of this
 ## Copyright
 
 - Copyright (c) 2012-2013 Moodstocks SAS
-- Copyright (c) 2014-2022 Pierre Chapuis
+- Copyright (c) from 2014 Pierre Chapuis
 
-Some code borrowed from [Penlight](https://github.com/lunarmodules/Penlight), released under the MIT license by Steve Donovan and David Manura.
+Some code adapted from [Penlight](https://github.com/lunarmodules/Penlight), released under the MIT license by Steve Donovan and David Manura.

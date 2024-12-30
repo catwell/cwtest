@@ -1,6 +1,11 @@
 local cwtest = require "cwtest"
 
-local T = cwtest.new()
+local interface ExtendedTester is cwtest.Tester
+    last_success: function(self: cwtest.Tester, tpl: string, ...: any):(boolean)
+    last_failure: function(self: cwtest.Tester, tpl: string, ...: any):(boolean)
+end
+
+local T = cwtest.new() as ExtendedTester
 
 local C = cwtest.new() -- tested instance
 C.printf = function() end
@@ -10,7 +15,7 @@ local short_src = debug.getinfo(1).short_src
 local exp_got_tpl = "\n  expected: %s\n       got: %s"
 local pw = assert(cwtest.pretty_write)
 
-local _line = function(status, before, tpl, ...)
+local _line = function(status: string, before: integer, tpl: string, ...: any): string
     assert(
         (type(status) == "string") and
         (type(before) == "number") and
@@ -23,10 +28,11 @@ local _line = function(status, before, tpl, ...)
     )
 end
 
-T.last_success = function(self, tpl, ...)
+T.last_success = function(self: cwtest.Tester, tpl: string, ...: any): boolean
     local l = _line("OK", 1, tpl, ...)
-    local s = C.successes[#C.successes]
-    local r
+    local successes = C:successes()
+    local s = successes[#successes]
+    local r: boolean
     if s == l then
         r = self.pass_tpl(self, exp_got_tpl, l, s)
     else
@@ -35,10 +41,11 @@ T.last_success = function(self, tpl, ...)
     return r
 end
 
-T.last_failure = function(self, tpl, ...)
+T.last_failure = function(self: cwtest.Tester, tpl: string, ...: any): boolean
     local l = _line("KO", 1, tpl, ...)
-    local s = C.failures[#C.failures]
-    local r
+    local failures = C:failures()
+    local s = failures[#failures]
+    local r: boolean
     if s == l then
         r = self.pass_tpl(self, exp_got_tpl, l, s)
     else
@@ -46,11 +53,12 @@ T.last_failure = function(self, tpl, ...)
     end
     return r
 end
+
 
 T:start("successes", 26); do
     C:start("successes")
-    T:eq( C.successes, {} )
-    T:eq( C.failures, {} )
+    T:eq( C:successes(), {} )
+    T:eq( C:failures(), {} )
     T:yes(C:yes( 0 ))
     T:last_success( " (assertion)" )
     T:yes(C:yes( true, " foo" ))
@@ -63,7 +71,9 @@ T:start("successes", 26); do
     T:last_success( " foo bar 42" )
     T:yes(C:eq( 3*2, 6 ))
     T:last_success( exp_got_tpl, 6, 6 )
-    local _i,_o = {1, 2, a = {b = 42}}, {[2] = 2, a = {b = 42}, [1] = 1}
+    local _i: any
+    local _o: any
+    _i, _o = {1, 2, a = {b = 42}}, {[2] = 2, a = {b = 42}, [1] = 1}
     T:yes(C:eq( _i, _o ))
     T:last_success( exp_got_tpl, pw(_o), pw(_i) )
     _i, _o = {2, {x = 2.5}, 3}, {3, 2, {x = 2.5}}
@@ -75,14 +85,14 @@ T:start("successes", 26); do
     T:last_success( ": error [[foo]] caught" )
     T:yes(C:err( function() error("foo", 0) end ))
     T:last_success( ": error caught" )
-    T:eq( C.failures, {} )
+    T:eq( C:failures(), {} )
     T:eq(C:done(), true)
 end; T:done()
 
 T:start("failures", 28); do
     C:start("failures")
-    T:eq( C.successes, {} )
-    T:eq( C.failures, {} )
+    T:eq( C:successes(), {} )
+    T:eq( C:failures(), {} )
     T:no(C:yes( false ))
     T:last_failure( " (assertion)" )
     T:no(C:yes( nil, " foo" ))
@@ -105,11 +115,11 @@ T:start("failures", 28); do
     T:last_failure( " ({} == {})" )
     T:no(C:err( function() error("foo", 0) end, "bar" ))
     T:last_failure( "\n  expected error: bar\n       got error: foo" )
-    T:no(C:err( function() return 42 end, "foo" ))
+    T:no(C:err( function():(integer) return 42 end, "foo" ))
     T:last_failure( "\n  expected error: foo\n             got: %s", pw({42}) )
-    T:no(C:err( function() return 42 end ))
+    T:no(C:err( function():(integer) return 42 end ))
     T:last_failure( ": expected error, got %s", pw({42}) )
-    T:eq( C.successes, {} )
+    T:eq( C:successes(), {} )
     T:eq(C:done(), false)
 end; T:done()
 

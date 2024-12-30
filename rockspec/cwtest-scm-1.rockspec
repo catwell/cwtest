@@ -10,7 +10,7 @@ source = {
 description = {
     summary = "Test helper",
     detailed = [[
-        cwtest is a tiny Lua test helper.
+        cwtest is a tiny Teal / Lua test helper.
     ]],
     homepage = "https://github.com/catwell/cwtest",
     license = "MIT/X11",
@@ -19,12 +19,8 @@ description = {
 dependencies = { "lua >= 5.1" }
 
 build = {
-    type = "none",
-    install = { lua = { cwtest = "cwtest.lua" } },
+    type = "builtin",
+    modules = { cwtest = "cwtest.lua" },
+    install = { lua = { cwtest = "cwtest.tl" } },
     copy_directories = {},
-}
-
-test = {
-   type = "command",
-   script = "cwtest.test.lua",
 }
