@@ -1,16 +1,6 @@
 name: CI
 on: push
 jobs:
-
-  luacheck:
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout
-        uses: actions/checkout@v3
-
-      - name: luacheck
-        uses: lunarmodules/luacheck@v1
-
   tests:
     strategy:
       matrix:
@@ -18,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: localua
         run: |
@@ -26,7 +16,11 @@ jobs:
           chmod +x localua.sh
           ./localua.sh .lua "${{ matrix.lua-version }}"
 
+      - name: install Teal
+        run: |
+          ./.lua/bin/luarocks install tl
+
       - name: run tests
         run: |
-          ./.lua/bin/luarocks test
+          ./.lua/bin/tl run cwtest.test.tl
 
