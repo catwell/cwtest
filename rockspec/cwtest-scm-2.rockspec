@@ -1,7 +1,7 @@
 rockspec_format = "3.0"
 
 package = "cwtest"
-version = "scm-1"
+version = "scm-2"
 
 source = {
     url = "git://github.com/catwell/cwtest.git",
