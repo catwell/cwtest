@@ -123,4 +123,49 @@ T:start("failures", 28); do
     T:eq(C:done(), false)
 end; T:done()
 
+local expected_tap = [[
+1..2
+    1..4
+    ok 1 - Multiplication 1
+    ok 2 - Multiplication 2
+    not ok 3 - Multiplication 3
+    ok 4 - Multiplication 4
+not ok 1 - Multiplication (3 OK, 1 KO, 4 total)
+    1..5
+    ok 1 - Squares 1
+    ok 2 - Squares 2
+    ok 3 - Squares 3
+    ok 4 - Squares 4
+    ok 5 - Squares 5
+ok 2 - Squares (5 OK, 0 KO, 5 total)
+]]
+
+T:start("tap support", 3); do
+    C = cwtest.new({tap = 2})
+
+    local tap_output = {}
+    C.printf = function(s: string, ...: any)
+        table.insert(tap_output, string.format(s, ...))
+    end
+
+    C:start("Multiplication", 4); do
+        C:eq( 2 * 3, 6 )
+        C:eq( 3 * 3 * 3, 27 )
+        C:eq( 3 * 4, 13 )
+        C:eq( 7 * 7, 49 )
+    end
+    T:eq(C:done(), false)
+
+    C:start("Squares", 5); do
+        for i = 1, 5 do
+            local x = 0
+            for _ = 1, i do x = x + i end
+            C:eq( i * i, x )
+        end
+    end
+    T:eq(C:done(), true)
+
+    T:eq(table.concat(tap_output), expected_tap)
+end; T:done()
+
 T:exit()
